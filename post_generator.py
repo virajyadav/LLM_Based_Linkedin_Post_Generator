@@ -1,4 +1,5 @@
-from llm_helper import llm
+
+from llm_helper import chat_with_ollama
 from few_short import FewShort
 
 fs = FewShort()
@@ -12,26 +13,27 @@ def get_length_str(length):
         return "24 to 30 lines"
     
 
-def generate_post(tag, length,language):
+def generate_post(tag, length,language,context):
     #prompt = f"Generate a LinkedIn post for the tag {tag} with the length {get_length_str(length)} in the language {language}"
-    prompt = get_prompt(length, language, tag)
-    response = llm.invoke(prompt)
-    return response.content
+    prompt = get_prompt(length, language, tag,context)
+    #response = llm.invoke(prompt)
+    response = chat_with_ollama(prompt)
+    return response
 
 
-def get_prompt(length, language, tag):
+def get_prompt(length, language, tag,context):
     length_str = get_length_str(length)
 
     prompt = f'''
     Generate a LinkedIn post using the below information. No preamble.
-    Make this suitable for Design Enginner for mechanical part using catia v5.
+    Context: {context}
 
     1) Topic: {tag}
     2) Length: {length_str}
     3) Language: {language}
     The script for the generated post should always be English.
     '''
-    # prompt = prompt.format(post_topic=tag, post_length=length_str, post_language=language)
+
 
     examples = fs.get_filtered_df(length, language, tag)
 
