@@ -1,25 +1,23 @@
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq
 from ollama import chat
-from ollama import ChatResponse
-import os 
-load_dotenv()
+import time
 
 
 
-llm = ChatGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-    model="deepseek-r1-distill-llama-70b",
-    temperature=0.0,
-)
 
 
-def chat_with_ollama(model, prompt):
-    response = chat(model=model, messages=list(prompt))
-    return response.content
+def chat_with_ollama(query):
+    try:
+        model = "deepseek-r1:1.5b"
+        prompt = [{'role':'user','content':query}]
+        response = chat(model=model, messages=list(prompt),stream=True)
+        for chunk in response:
+            response =  chunk['message']['content']
+            time.sleep(0.05)
+            yield response
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
-    # response = llm.invoke("What is the capital of France?")
-    # print(response.content)
-    response = chat_with_ollama("deepseek-r1:1.5b", [{'content':'What is the capital of France?'}])
+    query = 'What is the capital of France?'
+    response = chat_with_ollama(query)
     print(response)
